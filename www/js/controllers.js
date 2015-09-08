@@ -1,7 +1,6 @@
 var appControllers = angular.module('starter.controllers', []);
 
 appControllers.controller('AppCtrl', function ($state, $scope, $ionicPopup, AuthService, AUTH_EVENTS) {
-    console.log('app ctrl start');
     $scope.username = AuthService.userName();
 
     $scope.$on(AUTH_EVENTS.notAuthorized, function (event) {
@@ -71,7 +70,6 @@ appControllers.controller('LoginCtrl', function ($state, $scope, $http, $ionicPo
     $scope.loginData = {};
 
     $scope.login = function () {
-        console.log('bla');
         AuthService.login($scope.loginData, 'default');
     };
 
@@ -84,22 +82,21 @@ appControllers.controller('LoginCtrl', function ($state, $scope, $http, $ionicPo
     };
 });
 
-appControllers.controller('RegisterCtrl', function ($scope, $http, $state) {
+appControllers.controller('RegisterCtrl', function ($scope, $http, $state, $ionicPopup) {
     $scope.formData = {};
 
     $scope.sub = function () {
-        console.log('form data: ', $scope.formData);
         $http.post('/register/complete', $scope.formData)
             .success(function (data) {
-
-                console.log('posted successfully ', data);
 
                 //redirect to 'categories' page
                 $state.go('categories');
             })
             .error(function (err) {
-                console.error('error in posting registration details: ', err);
-                //TODO: show error message
+                $ionicPopup.alert({
+                    title: 'Registration Error!',
+                    template: err
+                });
             });
     }
 });
@@ -115,7 +112,6 @@ appControllers.controller('CategoriesCtrl', function ($scope, $http, $state, $io
             });
         } else {
             $scope.categories = data;
-            console.log('categories: ', $scope.categories);
         }
     });
 
@@ -144,17 +140,15 @@ appControllers.controller('CategoriesCtrl', function ($scope, $http, $state, $io
             email: $scope.userModel.email,
             categories: $scope.userModel.categories
         };
-        console.log('params: ', params);
+
 
         $http.post('/categories/complete', params)
             .success(function (data) {
-                console.log('data: ', data);
 
                 //redirect to 'main' page
                 $state.go('tab.malls');
             })
             .error(function (data) {
-                console.error('error in posting categories/complete ', data);
                 $ionicPopup.alert({
                     title: 'Categories failed!',
                     template: 'Error in posting categories/complete'
@@ -166,14 +160,12 @@ appControllers.controller('CategoriesCtrl', function ($scope, $http, $state, $io
 appControllers.controller('MallsCtrl', function ($scope, Malls, GeoAlert) {
     $scope.malls = {};
     Malls.all().then(function (unorderedMalls, error) {
-        GeoAlert.getDistance(unorderedMalls.data.data).then(function (data, err) {
+        GeoAlert.getDistance(unorderedMalls).then(function (data, err) {
             if (data) {
-                Malls.set(data);
                 $scope.malls = data;
-                console.log('MallsCtrl data: ', data);
+
             } else {
                 $scope.malls = unorderedMalls;
-                console.log('MallsCtrl data else: ', data);
             }
         });
     });
@@ -187,9 +179,9 @@ appControllers.controller('MySalesCtrl', function ($scope, MySales) {
     $scope.mysales = {};
 
     MySales.all().then(function (data, err) {
-        if (err)console.log('error: ', err);
-        else {
-            console.log("my sales - data", data.data.data);
+        if (err) {
+            console.log('error: ', err);
+        } else {
             $scope.mysales = data.data.data;
         }
     });
@@ -206,10 +198,8 @@ appControllers.controller('SalesCtrl', function ($scope, $stateParams, Malls, Sa
     Sales.all().then(function (data, err) {
         if (err || !data) {
             console.log('error: ', err);
-
         } else {
-            console.log('sales: ', data);
-            $scope.sales = data.data.data;
+            $scope.sales = data;
         }
     });
 
@@ -227,7 +217,6 @@ appControllers.controller('MallSalesCtrl', function ($scope, $stateParams, Malls
         if (err || !data) {
             console.log('error: ', err);
         } else {
-            console.log('mall sales: ', data);
             $scope.sales = data.data.data;
         }
     });
@@ -237,21 +226,13 @@ appControllers.controller('MallSalesCtrl', function ($scope, $stateParams, Malls
     }
 });
 
-
 appControllers.controller('SaleDetailsCtrl', function ($scope, $stateParams, Sales) {
     $scope.sale = {};
-
     Sales.get($stateParams.saleId).then(function (data, err) {
         if (err || !data) {
             console.log('error: ', err);
         } else {
-            console.log("salesCtrlDetails: ", data);
             $scope.sale = data;
         }
     });
-});
-
-
-appControllers.controller('MallSaleDetailsCtrl', function ($scope, $stateParams, Malls) {
-
 });

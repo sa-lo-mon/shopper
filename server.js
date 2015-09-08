@@ -16,7 +16,7 @@ app.use(express.static(__dirname + '/www'));
 app.post('/login', function (req, res) {
 
     if (req.body.password && req.body.email) {
-        console.log('login 1');
+
         var loginInput = {
             user_name: req.body.email,
             password: req.body.password
@@ -24,22 +24,22 @@ app.post('/login', function (req, res) {
 
         facebookToDB.validateUser(loginInput, function (err, data) {
             if (err) {
-                console.log('login 2');
+
                 res.json({success: false, data: null, message: err.message});
 
             } else if (data && data.valid) {
-                console.log('login 3');
+
                 res.json({success: true, data: data});
 
             } else {
-                console.log('login 4');
+
                 //user not exist or password is incorrect
                 res.json({success: false, data: null, message: 'Please check your input!'});
             }
         });
 
     } else {
-        console.log('login 5');
+
         res.json({success: false, data: null, message: "Invalid Request!"});
     }
 });
@@ -79,12 +79,8 @@ app.post('/register/complete', function (req, res) {
         } else {
             mongoAccessLayer.insertDocument('users', userDocument, function (err, data) {
                 if (err) {
-                    console.log("could not create user!");
-                    console.log("error details: ", err);
                     res.send('error while registration!');
                 } else {
-                    console.log("new user created");
-                    console.log(data);
                     res.send('registration ended successfully!');
                 }
             });
@@ -152,7 +148,6 @@ app.get('/sales', function (req, res) {
 
 app.get('/sales/:ids', function (req, res) {
     if (req.params.ids) {
-        console.log('ids: ', req.params.ids);
         var idsArray = req.params.ids.split(',');
         idsArray = idsArray.map(function (id) {
             return parseInt(id);
@@ -175,9 +170,7 @@ app.get('/sales/:ids', function (req, res) {
 
 app.get('/mallSales/:id', function (req, res) {
     if (req.params.id) {
-        console.log('params:', req.params);
         var id = parseInt(req.params.id);
-        console.log(req.params.id);
         var criteria = {
             mallId: id
         };
@@ -209,27 +202,17 @@ app.post('/addToMySales', function (req, res) {
         condition: {email: req.body.email},
         setValues: {Sales: req.body.saleDetails}
     };
-    console.log("email", cariteria.condition);
-    console.log("sale details", cariteria.setValues);
-
-    console.log("(*)*)*)*)*)*)*)" + cariteria);
-
-
     mongoAccessLayer.pushDocument("users", cariteria, function (err, data) {
         if (err) {
-            console.log(err);
             res.json({success: false, data: null, message: err.message});
-
-
         } else {
-            console.log(data);
             res.json({success: true, data: data, message: null});
         }
     });
 });
 
 app.post('/removeFromMySales', function (req, res) {
-console.log(req.body);
+
    var criteria = {
         condition: {email: req.body.email},
         setValues: {Sales: req.body.sales}

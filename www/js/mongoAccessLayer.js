@@ -77,15 +77,12 @@ MongoAccessLayer.prototype.getCollection = function (collectionName, query, call
         if (err) {
             callback(err, null);
         } else {
-            console.log('query: ', query);
             db.collection(collectionName).find(query, function (err, cursor) {
                 assert.equal(err, null);
                 cursor.toArray(function (err, items) {
                     if (err) {
-                        console.log('error in get collection', err.message);
                         callback(err, null);
                     } else {
-                        console.log('items: ', items);
                         callback(null, items);
                     }
                 });
@@ -113,10 +110,7 @@ MongoAccessLayer.prototype.pushDocument = function (collectionName, criteria, ca
     this.connect(function (err, db) {
         if (err) {
             callback(err, null);
-
         } else {
-            console.log(criteria.condition);
-            console.log(criteria.setValues);
             db.collection(collectionName).update(criteria.condition, {$push: criteria.setValues},
                 function (err, result) {
                     assert.equal(err, null);
@@ -128,7 +122,7 @@ MongoAccessLayer.prototype.pushDocument = function (collectionName, criteria, ca
 
 MongoAccessLayer.prototype.getMySales = function (collectionName, value, callback) {
     var query = {"email": value};
-    console.log("find user", value);
+
     this.connect(function (err, db) {
         if (err) {
             callback(err, null);
@@ -137,7 +131,6 @@ MongoAccessLayer.prototype.getMySales = function (collectionName, value, callbac
                 assert.equal(err, null);
                 collection.findOne(query, ['email', 'FirstName', 'Categories', 'Sales'], function (err, document) {
                     assert.equal(err, null);
-                    console.log("db retuurns", document);
                     callback(null, document);
                 });
             });

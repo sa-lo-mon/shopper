@@ -20,11 +20,21 @@ appServices.factory('Categories', function ($http, $q) {
 appServices.factory('Malls', function ($http, $q) {
 
     var malls = [];
+
     var all = function () {
         if (malls.length > 0) {
             return $q.resolve(malls);
         } else {
-            return $http.get('/malls');
+            return $q(function (resolve, reject) {
+                $http.get('/malls').then(function (data, err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        malls = data.data.data;
+                        resolve(data);
+                    }
+                });
+            });
         }
     };
 
@@ -62,15 +72,13 @@ appServices.factory('Sales', function ($http, $q) {
         if (sales.length > 0) {
             return $q.resolve(sales);
         } else {
-            // TODO: get sales that are in the
-            // valid radius from user location
             return $q(function (resolve, reject) {
                 $http.get('/sales').then(function (data, err) {
                     if (err) {
                         reject(err);
                     } else {
                         sales = data.data.data;
-                        resolve(data);
+                        resolve(sales);
                     }
                 });
             });
@@ -78,17 +86,13 @@ appServices.factory('Sales', function ($http, $q) {
     };
 
     var get = function (saleId) {
-        console.log('get start');
         return $q(function (resolve, reject) {
             all().then(function (data, err) {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log('saleId: ', saleId);
-                    console.log('all sales: ', sales);
                     var id = parseInt(saleId);
                     for (var i = 0; i < sales.length; i++) {
-                        console.log('sale -', sales[i]);
                         if (sales[i].id == id) {
                             resolve(sales[i]);
                         }
@@ -100,7 +104,6 @@ appServices.factory('Sales', function ($http, $q) {
     };
 
     var getSalesByIds = function (salesIds) {
-        console.log();
         return $http.get('/sales/' + salesIds);
     };
 
@@ -121,7 +124,6 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
         AuthService.addSale(sale.id);
 
         return $q(function (resolve, reject) {
-            console.log(userDetails.email);
             var detailsJson = {
                 "email": userDetails.email,
                 "saleDetails": sale.id
@@ -192,8 +194,7 @@ appServices.factory('Categories', function ($http, $q) {
     };
 });
 
-appServices.factory('GeoAlert', function ($q, Malls) {
-    console.log('GeoAlert service instantiated');
+appServices.factory('GeoAlert', function ($q, $ionicPopup) {
     var interval;
     var duration = 6000;
     var long, lat;
@@ -207,10 +208,9 @@ appServices.factory('GeoAlert', function ($q, Malls) {
         var dLat = deg2rad(lat2 - lat1);  // deg2rad below
         var dLon = deg2rad(lon2 - lon1);
         var a =
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2)
-            ;
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         var d = R * c; // Distance in km
         return d;
@@ -221,56 +221,64 @@ appServices.factory('GeoAlert', function ($q, Malls) {
     }
 
     function hb() {
-        console.log('hb running');
+
         if (processing) return;
         processing = true;
-        console.log('once');
-        navigator.geolocation.getCurrentPosition(function (position) {
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
             processing = false;
-            console.log("target location" + lat, long);
-            console.log("my position " + position.coords.latitude, position.coords.longitude);
-            var dist = getDistanceFromLatLonInKm(lat, long, position.coords.latitude, position.coords.longitude);
-            console.log("dist in km is " + dist);
-            if (dist <= minDistance) callback(position);
+            var dist = getDistanceFromLatLonInKm(lat, long, pos.coords.latitude, pos.coords.longitude);
+
+            if (dist <= minDistance) callback(pos);
         }, onError, {enableHighAccuracy: false});
     }
 
     function onError(error) {
         processing = false;
-        alert('code: ' + error.code + '\n' +
-            'message: ' + error.message + '\n');
-    }
+        $ionicPopup.alert({
+            title: 'Geoloaction Error!',
+            template: 'code: ' + error.code + '\n' + 'message: ' + error.message + '\n'
+        });
+    };
 
     function sortDistance(malls) {
         return $q(function (resolve, reject) {
+
             //TODO: check if gps is open
             navigator.geolocation.getCurrentPosition(function (position) {
                 if (position == -1) {
-                    reject('WTF!!!');
+                    reject('Invalid Distance!');
                 }
                 currentLat = position.coords.latitude;
                 currentLong = position.coords.longitude;
                 var length = malls.length;
                 for (var i = 0; i < length; i++) {
-                    malls[i].distance = Math.round(getDistanceFromLatLonInKm(currentLat, currentLong, malls[i].lat, malls[i].long) * 100) / 100;
+                    var distInKM = getDistanceFromLatLonInKm(currentLat, currentLong, malls[i].lat, malls[i].long);
+                    malls[i].distance = Math.round(distInKM * 100) / 100;
                 }
+
                 for (var i = 0; i < length; i++) {
                     var tmp = malls[i]; //Copy of the current element.
-                    /*Check through the sorted part and compare with the
-                     number in tmp. If large, shift the number*/
+
+                    /*
+                     Check through the sorted part and compare with the
+                     number in tmp. If large, shift the number
+                     */
                     for (var j = i - 1; j >= 0 && (malls[j].distance > tmp.distance); j--) {
+
                         //Shift the number
                         malls[j + 1] = malls[j];
                     }
-                    //Insert the copied number at the correct position
-                    //in sorted part.
+
+                    // Insert the copied number at the correct position
+                    // in sorted part.
                     malls[j + 1] = tmp;
                 }
-                console.log('sorted');
+
                 resolve(malls);
             });
         });
-    }
+    };
 
     return {
         begin: function (lt, lg, cb) {
@@ -322,7 +330,6 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
 
     function loadUserCredentials() {
         var token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
-        console.log('token-> :', token);
         if (token) {
             useCredentials(token);
             loginRedirect();
@@ -333,7 +340,6 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
 
     function isValidUser(loginData) {
         return $q(function (resolve, reject) {
-            console.log('login data: ', loginData);
             if (loginData.email && loginData.password) {
 
                 //Get user credentials from database

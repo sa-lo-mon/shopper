@@ -44,6 +44,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         })
 
         .state('tab.malls', {
+            cache:false,
             url: '/malls',
             views: {
                 'tab-malls': {
@@ -54,6 +55,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         })
 
         .state('tab.sales', {
+            cache:false,
             url: '/sales',
             views: {
                 'tab-sales': {
