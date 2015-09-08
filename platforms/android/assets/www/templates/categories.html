@@ -1,0 +1,14 @@
+<div> Please select categories:</div>
+<div id="categories" ng-controller="CategoriesCtrl">
+    <form ng-submit="sub()">
+        <div ng-repeat="category in categories">
+            <label>
+                <input type="checkbox"
+                       checklist-model="getCategories()"
+                       checklist-value="category.Id"
+                       ng-change="check(category.Id, checked)"> {{category.Name}}
+            </label>
+        </div>
+        <input type="submit" value="Submit"/>
+    </form>
+</div>

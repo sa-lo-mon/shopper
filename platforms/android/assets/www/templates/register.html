@@ -1,0 +1,17 @@
+<div id="register" ng-controller="RegisterCompleteCtrl">
+    <form ng-submit="sub()">
+
+        Email: <input type="text" ng-model="formData.email" placeholder="Enter email"/><br/>
+        Password: <input type="password" ng-model="formData.password" placeholder="Enter password"/><br/>
+        First Name: <input type="text" ng-model="formData.firstname" placeholder="Enter first name"/><br/>
+        Last Name:<input type="text" ng-model="formData.lastname" placeholder="Enter last name"/><br/>
+        Birth Year: <input type="text" ng-model="formData.birthyear" placeholder="Enter birth year"/><br/>
+        City: <input type="text" ng-model="formData.city" placeholder="Enter city"/><br/>
+        <fieldset>
+            <legend>Gender:</legend>
+            <input type="radio" ng-model="formData.gender" value="male" checked>Male<br/>
+            <input type="radio" ng-model="formData.gender" value="female">Female
+        </fieldset>
+        <input type="submit" value="Submit"/>
+    </form>
+</div>
