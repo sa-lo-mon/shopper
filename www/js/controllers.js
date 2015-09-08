@@ -222,7 +222,7 @@ appControllers.controller('SalesCtrl', function ($scope, $stateParams, Malls, Sa
     };
 });
 
-appControllers.controller('MallSalesCtrl', function ($scope, $stateParams, Malls, Sales) {
+appControllers.controller('MallSalesCtrl', function ($scope, $stateParams, Malls, MySales) {
 
     $scope.currentMallId = $stateParams.mallId;
     $scope.sales = {};
@@ -236,12 +236,8 @@ appControllers.controller('MallSalesCtrl', function ($scope, $stateParams, Malls
         }
     });
 
-    $scope.remove = function (mall) {
-        Malls.remove(mall);
-    };
-
     $scope.add = function (sale) {
-        Sales.add(sale);
+        MySales.add(sale);
     }
 });
 

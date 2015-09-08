@@ -201,7 +201,7 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
 
         var userModel = AuthService.getUserModel();
         var salesArray = userModel.sales.split(',');
-        userModel.sales = salesArray.map(function(saleId){
+        userModel.sales = salesArray.map(function (saleId) {
             return parseInt(saleId);
         });
 
@@ -216,13 +216,13 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
         });
     };
 
-    var getMySales = function (ids) {
+    var getMySales = function () {
         userDetails = AuthService.getUserModel();
-        return Sales.getSalesByIds(ids);
+        return Sales.getSalesByIds(userDetails.sales);
     };
 
     var all = function () {
-        return getMySales(userDetails.sales);
+        return getMySales();
     };
     /*var all = function () {
      return $q(function (resolve, reject) {
@@ -632,7 +632,7 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         var indexOfSale = userSales.indexOf(saleId);
 
         var userSalesArray = userSales.split(',');
-        userSalesArray.splice(indexOfSale,1);
+        userSalesArray.splice(indexOfSale, 1);
         window.localStorage.setItem(LOCAL_SALES_KEY, userSalesArray);
     };
 // this will occur every time
@@ -655,7 +655,7 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         },
 
         addSale: addSale,
-        removeSale:removeSale
+        removeSale: removeSale
     };
 });
 
