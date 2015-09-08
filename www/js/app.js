@@ -43,47 +43,6 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             templateUrl: 'templates/tabs.html'
         })
 
-        // Each tab has its own nav history stack:
-        .state('tab.dash', {
-            url: '/dash',
-            views: {
-                'tab-dash': {
-                    templateUrl: 'templates/tab-dash.html',
-                    controller: 'DashCtrl'
-                }
-            }
-        })
-
-        .state('tab.chats', {
-            url: '/chats',
-            views: {
-                'tab-chats': {
-                    templateUrl: 'templates/tab-chats.html',
-                    controller: 'ChatsCtrl'
-                }
-            }
-        })
-
-        .state('tab.chat-detail', {
-            url: '/chats/:chatId',
-            views: {
-                'tab-chats': {
-                    templateUrl: 'templates/chat-detail.html',
-                    controller: 'ChatDetailCtrl'
-                }
-            }
-        })
-
-        .state('tab.logout', {
-            url: '/logout',
-            views: {
-                'tab-logout': {
-                    templateUrl: 'templates/login.html',
-                    controller: 'LoginCtrl'
-                }
-            }
-        })
-
         .state('tab.malls', {
             url: '/malls',
             views: {
@@ -93,6 +52,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
                 }
             }
         })
+
         .state('tab.sales', {
             url: '/sales',
             views: {
@@ -102,6 +62,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
                 }
             }
         })
+
         .state('tab.sale-detail', {
             url: '/sales/:saleId',
             views: {
@@ -111,16 +72,19 @@ app.config(function ($stateProvider, $urlRouterProvider) {
                 }
             }
         })
+
         .state('tab.mall-sales', {
             url: '/malls/:mallId',
             views: {
                 'tab-malls': {
-                    templateUrl: 'templates/tab-malls-sales.html',
+                    templateUrl: 'templates/tab-mall-sales.html',
                     controller: 'MallSalesCtrl'
                 }
             }
         })
+
         .state('tab.my-sales', {
+            cache: false,
             url: '/my-sales',
             views: {
                 'tab-my-sales': {
@@ -140,13 +104,13 @@ app.config(function ($httpProvider) {
             'request': function (config) {
                 var url = config.url;
 
-                //if url doesn't contain '.html'
+                //enter only if url doesn't contain '.html'
                 if (url.indexOf('.html') == -1) {
-                    var server = 'https://shopper-app.herokuapp.com';
-                    //var localhost = 'http://localhost:8000';
-                    //config.url = localhost + config.url;
-                    config.url = server + config.url;
-                    console.log('config url: ', config.url);
+                    //var server = 'https://shopper-app.herokuapp.com';
+                    //config.url = server + config.url;
+
+                    var localhost = 'http://localhost:8000';
+                    config.url = localhost + config.url;
                 }
 
                 return config || $q.when(config);

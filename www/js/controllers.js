@@ -41,10 +41,6 @@ appControllers.controller('Login2Ctrl', function ($state, $scope, $ionicPopup, A
     }
 });
 
-appControllers.controller('DashCtrl', function ($state, $scope, $ionicPopup, $http, AuthService) {
-    //TODO: continue logic!!!
-});
-
 appControllers.controller('ChatsCtrl', function ($scope, Chats) {
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.

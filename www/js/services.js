@@ -1,54 +1,5 @@
 var appServices = angular.module('starter.services', []);
 
-appServices.factory('Chats', function () {
-    // Might use a resource here that returns a JSON array
-
-    // Some fake testing data
-    var chats = [{
-        id: 0,
-        name: 'Ben Sparrow',
-        lastText: 'You on your way?',
-        face: 'https://pbs.twimg.com/profile_images/514549811765211136/9SgAuHeY.png'
-    }, {
-        id: 1,
-        name: 'Max Lynx',
-        lastText: 'Hey, it\'s me',
-        face: 'https://avatars3.githubusercontent.com/u/11214?v=3&s=460'
-    }, {
-        id: 2,
-        name: 'Adam Bradleyson',
-        lastText: 'I should buy a boat',
-        face: 'https://pbs.twimg.com/profile_images/479090794058379264/84TKj_qa.jpeg'
-    }, {
-        id: 3,
-        name: 'Perry Governor',
-        lastText: 'Look at my mukluks!',
-        face: 'https://pbs.twimg.com/profile_images/598205061232103424/3j5HUXMY.png'
-    }, {
-        id: 4,
-        name: 'Mike Harrington',
-        lastText: 'This is wicked good ice cream.',
-        face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
-    }];
-
-    return {
-        all: function () {
-            return chats;
-        },
-        remove: function (chat) {
-            chats.splice(chats.indexOf(chat), 1);
-        },
-        get: function (chatId) {
-            for (var i = 0; i < chats.length; i++) {
-                if (chats[i].id === parseInt(chatId)) {
-                    return chats[i];
-                }
-            }
-            return null;
-        }
-    };
-});
-
 appServices.factory('Categories', function ($http, $q) {
     return {
         all: function () {
@@ -73,9 +24,6 @@ appServices.factory('Malls', function ($http, $q) {
         if (malls.length > 0) {
             return $q.resolve(malls);
         } else {
-
-            //TODO: get malls that are in the
-            // valid radius from user location
             return $http.get('/malls');
         }
     };
@@ -89,28 +37,20 @@ appServices.factory('Malls', function ($http, $q) {
                 }
             }
 
-            // we didn't get to resolve,
-            // so reject the query
+            // if we didn't get to resolve,
+            // reject the query
             reject('malls is empty');
         });
     };
 
     var getMallSales = function (mallId) {
-        console.log('getMallSales');
         return $http.get('/mallSales/' + mallId);
     };
 
     return {
         all: all,
-        allsorted: malls,
-        remove: function (mall) {
-            malls.splice(malls.indexOf(mall), 1);
-        },
         get: get,
-        getMallSales: getMallSales,
-        set: function (data) {
-            malls = data;
-        }
+        getMallSales: getMallSales
     };
 });
 
@@ -176,16 +116,17 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
     var userDetails = AuthService.getUserModel();
 
     var add = function (sale) {
-        console.log('in service MySales');
         var mySales = userDetails.sales;
+
         AuthService.addSale(sale.id);
+
         return $q(function (resolve, reject) {
             console.log(userDetails.email);
             var detailsJson = {
                 "email": userDetails.email,
                 "saleDetails": sale.id
             };
-            console.log("Sale: ", detailsJson);
+
             $http.post('/addToMySales', detailsJson).then(function (data, err) {
                 if (data) {
                     resolve(data);
@@ -224,19 +165,6 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
     var all = function () {
         return getMySales();
     };
-    /*var all = function () {
-     return $q(function (resolve, reject) {
-     console.log('userDetails.email: ', userDetails.email);
-     $http.get('/mySalesList/' + userDetails.email).then(function (data, err) {
-     if (data) {
-     console.log("inside my sales service", data);
-     resolve(data);
-     } else {
-     reject("rejected");
-     }
-     });
-     });
-     };*/
 
     return {
         all: all,
@@ -246,86 +174,24 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
 });
 
 appServices.factory('Categories', function ($http, $q) {
-    return {
-        all: function () {
-            var dfd = $q.defer();
-            $http.get('/categories')
-                .success(function (categories) {
-                    dfd.resolve(categories.data);
-                })
-                .error(function (err) {
-                    dfd.reject(err);
-                });
+    var all = function () {
+        var dfd = $q.defer();
+        $http.get('/categories')
+            .success(function (categories) {
+                dfd.resolve(categories.data);
+            })
+            .error(function (err) {
+                dfd.reject(err);
+            });
 
-            return dfd.promise;
-        }
+        return dfd.promise;
+    };
+
+    return {
+        all: all
     };
 });
-/*
- appServices.factory('MySales', function ($http, $q, AuthService) {
- var sales = [];
- var userDetails = AuthService.getUserModel();
- var add = function (sale) {
- console.log('in service MySales');
- return $q(function (resolve, reject) {
- console.log(userDetails.email);
- var detailsJson = {
- "email": userDetails.email,
- "saleDetails": sale
- };
- console.log("Sale: ", detailsJson);
 
- $http.post('/addToMySales', detailsJson).then(function (data, err) {
- if (data) {
- resolve(data);
- } else {
- reject("rejected");
- }
- });
- });
- };
-
- var remove = function (sales) {
- return $q(function (resolve, reject) {
- $http.post('/removeFromMySales', sale).then(function (data, err) {
- if (data) {
- resolve(data);
- } else {
- reject("rejected");
- }
- });
- });
-
- }
- var get = function (saleId) {
- for (var i = 0; i < sales.length; i++) {
- if (sales[i].id === parseInt(saleId)) {
- return sales[i];
- }
- }
- return null;
- }
- var all = function () {
- return $q(function (resolve, reject) {
- $http.get('/mySalesList/' + userDetails.email).then(function (data, err) {
- if (data) {
- console.log("inside my sales service", data);
- resolve(data);
- } else {
- reject("rejected");
- }
- });
- });
- }
-
- return {
- all: all,
- remove: remove,
- get: get,
- add: add
- };
- });
- */
 appServices.factory('GeoAlert', function ($q, Malls) {
     console.log('GeoAlert service instantiated');
     var interval;
@@ -485,7 +351,6 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
     }
 
     function storeUserCredentials(userData) {
-        console.log('user data: ', userData);
         if (!userData.data) {
             $rootScope.$broadcast(AUTH_EVENTS.notAuthenticated);
             return;
@@ -525,7 +390,7 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
             //redirect to "categories" page!
             path = 'categories';
         }
-        console.log('path -> :', path);
+
         $state.go(path);
     }
 
@@ -627,14 +492,13 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
     };
 
     var removeSale = function (saleId) {
-        console.log("sale Id ", saleId)
         var userSales = window.localStorage.getItem(LOCAL_SALES_KEY);
         var indexOfSale = userSales.indexOf(saleId);
-
         var userSalesArray = userSales.split(',');
         userSalesArray.splice(indexOfSale, 1);
         window.localStorage.setItem(LOCAL_SALES_KEY, userSalesArray);
     };
+
 // this will occur every time
 // that user will open the application
     loadUserCredentials();
@@ -644,6 +508,9 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         logout: logout,
         isAuthorized: isAuthorized,
         getUserModel: getUserModel,
+        addSale: addSale,
+        removeSale: removeSale,
+
         isAuthenticated: function () {
             return isAuthenticated;
         },
@@ -652,10 +519,7 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         },
         role: function () {
             return role;
-        },
-
-        addSale: addSale,
-        removeSale: removeSale
+        }
     };
 });
 
