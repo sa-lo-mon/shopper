@@ -109,11 +109,11 @@ app.config(function ($httpProvider) {
 
                 //enter only if url doesn't contain '.html'
                 if (url.indexOf('.html') == -1) {
-                    //var server = 'https://shopper-app.herokuapp.com';
-                    //config.url = server + config.url;
+                    var server = 'https://shopper-app.herokuapp.com';
+                    config.url = server + config.url;
 
-                    var localhost = 'http://localhost:8000';
-                    config.url = localhost + config.url;
+                    //var localhost = 'http://localhost:8000';
+                    //config.url = localhost + config.url;
                 }
 
                 return config || $q.when(config);
