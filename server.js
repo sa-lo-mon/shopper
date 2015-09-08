@@ -136,7 +136,7 @@ app.get('/categories', function (req, res) {
     })
 });
 
-app.get('/sales', function (req, res) {
+app.get('/sales/:catIds', function (req, res) {
     mongoAccessLayer.getCollection('sales', {}, function (err, data) {
         if (err) {
             res.json({success: false, data: null, message: err.message});
@@ -146,7 +146,7 @@ app.get('/sales', function (req, res) {
     })
 });
 
-app.get('/sales/:ids', function (req, res) {
+app.get('/sales/my/:ids', function (req, res) {
     if (req.params.ids) {
         var idsArray = req.params.ids.split(',');
         idsArray = idsArray.map(function (id) {
@@ -168,11 +168,16 @@ app.get('/sales/:ids', function (req, res) {
     }
 });
 
-app.get('/mallSales/:id', function (req, res) {
-    if (req.params.id) {
-        var id = parseInt(req.params.id);
+app.get('/mallSales/:mallId/:catsIds', function (req, res) {
+    if (req.params.mallId && req.params.catsIds) {
+        var id = parseInt(req.params.mallId);
+        var catsArray = req.params.catsIds.split(',');
+        catsArray = catsArray.map(function (id) {
+            return parseInt(id);
+        });
         var criteria = {
-            mallId: id
+            mallId: id,
+            categoryId: {$in: catsArray}
         };
         mongoAccessLayer.getCollection('sales', criteria, function (err, data) {
             if (err) {
@@ -213,7 +218,7 @@ app.post('/addToMySales', function (req, res) {
 
 app.post('/removeFromMySales', function (req, res) {
 
-   var criteria = {
+    var criteria = {
         condition: {email: req.body.email},
         setValues: {Sales: req.body.sales}
     };

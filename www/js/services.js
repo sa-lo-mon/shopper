@@ -17,7 +17,7 @@ appServices.factory('Categories', function ($http, $q) {
     };
 });
 
-appServices.factory('Malls', function ($http, $q) {
+appServices.factory('Malls', function ($http, $q, AuthService) {
 
     var malls = [];
 
@@ -54,7 +54,8 @@ appServices.factory('Malls', function ($http, $q) {
     };
 
     var getMallSales = function (mallId) {
-        return $http.get('/mallSales/' + mallId);
+        var userCats = AuthService.getUserModel().categories;
+        return $http.get('/mallSales/' + mallId + '/' + userCats);
     };
 
     return {
@@ -64,7 +65,7 @@ appServices.factory('Malls', function ($http, $q) {
     };
 });
 
-appServices.factory('Sales', function ($http, $q) {
+appServices.factory('Sales', function ($http, $q, AuthService) {
     var _self = this;
     var sales = [];
 
@@ -73,7 +74,8 @@ appServices.factory('Sales', function ($http, $q) {
             return $q.resolve(sales);
         } else {
             return $q(function (resolve, reject) {
-                $http.get('/sales').then(function (data, err) {
+                var userCats = AuthService.getUserModel().categories;
+                $http.get('/sales' + '/' + userCats).then(function (data, err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -104,7 +106,7 @@ appServices.factory('Sales', function ($http, $q) {
     };
 
     var getSalesByIds = function (salesIds) {
-        return $http.get('/sales/' + salesIds);
+        return $http.get('/sales/my/' + salesIds);
     };
 
     return {

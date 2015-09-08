@@ -54,6 +54,16 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             }
         })
 
+        .state('tab.mall-sales', {
+            url: '/malls/:mallId',
+            views: {
+                'tab-malls': {
+                    templateUrl: 'templates/tab-mall-sales.html',
+                    controller: 'MallSalesCtrl'
+                }
+            }
+        })
+
         .state('tab.sales', {
             cache:false,
             url: '/sales',
@@ -75,15 +85,6 @@ app.config(function ($stateProvider, $urlRouterProvider) {
             }
         })
 
-        .state('tab.mall-sales', {
-            url: '/malls/:mallId',
-            views: {
-                'tab-malls': {
-                    templateUrl: 'templates/tab-mall-sales.html',
-                    controller: 'MallSalesCtrl'
-                }
-            }
-        })
 
         .state('tab.my-sales', {
             cache: false,
@@ -181,7 +182,7 @@ app.run(function ($ionicPlatform, $window, GeoAlert) {
         }
 
         GeoAlert.begin(lat, long, function () {
-            console.log('TARGET');
+
             GeoAlert.end();
             /*        navigator.notification.confirm(
              'You are near a target!',
