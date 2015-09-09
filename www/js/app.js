@@ -25,6 +25,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         })
 
         .state('register', {
+            cache: false,
             url: '/register',
             templateUrl: 'templates/register.html',
             controller: 'RegisterCtrl'
@@ -44,7 +45,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         })
 
         .state('tab.malls', {
-            cache:false,
+            cache: false,
             url: '/malls',
             views: {
                 'tab-malls': {
@@ -65,7 +66,7 @@ app.config(function ($stateProvider, $urlRouterProvider) {
         })
 
         .state('tab.sales', {
-            cache:false,
+            cache: false,
             url: '/sales',
             views: {
                 'tab-sales': {
@@ -109,11 +110,11 @@ app.config(function ($httpProvider) {
 
                 //enter only if url doesn't contain '.html'
                 if (url.indexOf('.html') == -1) {
-                    var server = 'https://shopper-app.herokuapp.com';
-                    config.url = server + config.url;
+                    //var server = 'https://shopper-app.herokuapp.com';
+                    //config.url = server + config.url;
 
-                    //var localhost = 'http://localhost:8000';
-                    //config.url = localhost + config.url;
+                    var localhost = 'http://localhost:8000';
+                    config.url = localhost + config.url;
                 }
 
                 return config || $q.when(config);
@@ -208,7 +209,7 @@ app.run(function ($rootScope, $state, AuthService, AUTH_EVENTS) {
         }
 
         if (!AuthService.isAuthenticated()) {
-            if (next.name !== 'login') {
+            if (next.name !== 'login' && next.name !== 'register') {
                 event.preventDefault();
                 $state.go('login');
             }

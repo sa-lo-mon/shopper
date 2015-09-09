@@ -388,23 +388,27 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
     function loginRedirect() {
         var path = 'login';
         var userCategories = window.localStorage.getItem(LOCAL_CATEGORIES_KEY);
-        if (userCategories && userCategories.length > 0) {
+        var token = window.localStorage.getItem(LOCAL_TOKEN_KEY);
+        console.log(userCategories);
+        console.log(token);
+
+        if (token && userCategories) {
 
             //redirect to "sales" page!
             path = 'tab.sales';
-        } else {
+        } else if (token) {
 
             //redirect to "categories" page!
             path = 'categories';
         }
-
+        console.log(path);
         $state.go(path);
     }
 
     function redirectFromLogin() {
         var path = 'categories';
         var userCategories = window.localStorage.getItem(LOCAL_CATEGORIES_KEY);
-        if (userCategories && userCategories.length > 0) {
+        if ((userCategories != 'undefined')) {
 
             //redirect to "sales" page!
             path = 'tab.sales';
@@ -480,6 +484,13 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
 
     var logout = function () {
         destroyCredentials();
+        loginRedirect();
+    };
+
+    var setUserModel = function (userModel) {
+        window.localStorage.setItem(LOCAL_TOKEN_KEY, userModel.token);
+        window.localStorage.setItem(LOCAL_CATEGORIES_KEY, userModel.categories);
+        window.localStorage.setItem(LOCAL_SALES_KEY, userModel.sales);
     };
 
     var getUserModel = function () {
@@ -493,14 +504,18 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         var name = token.split(SEPARATOR)[0];
         var email = token.split(SEPARATOR)[1];
 
-        if (categories)
+        if (categories == 'undefined') {
+            categories = [];
+        } else {
             categories = categories.split(',');
+        }
 
         return {
             name: name,
             email: email,
             categories: categories,
-            sales: sales
+            sales: sales,
+            token: token
         };
     };
 
@@ -527,10 +542,10 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         logout: logout,
         isAuthorized: isAuthorized,
         getUserModel: getUserModel,
+        setUserModel: setUserModel,
         addSale: addSale,
         removeSale: removeSale,
         redirectFromLogin: redirectFromLogin,
-
         isAuthenticated: function () {
             return isAuthenticated;
         },
