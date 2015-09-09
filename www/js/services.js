@@ -23,6 +23,7 @@ appServices.factory('Malls', function ($http, $q, AuthService) {
 
     var all = function () {
         if (malls.length > 0) {
+            console.log("malls: " ,malls);
             return $q.resolve(malls);
         } else {
             return $q(function (resolve, reject) {
@@ -31,7 +32,7 @@ appServices.factory('Malls', function ($http, $q, AuthService) {
                         reject(err);
                     } else {
                         malls = data.data.data;
-                        resolve(data);
+                        resolve(malls);
                     }
                 });
             });
@@ -392,9 +393,10 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         console.log(userCategories);
         console.log(token);
 
-        if (token && userCategories) {
+        if (token && (userCategories != 'undefined')) {
 
             //redirect to "sales" page!
+            console.log('s');
             path = 'tab.sales';
         } else if (token) {
 

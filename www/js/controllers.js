@@ -126,7 +126,6 @@ appControllers.controller('CategoriesCtrl', function ($scope, $http, $state, $io
 });
 
 appControllers.controller('MallsCtrl', function ($scope, Malls, GeoAlert) {
-    $scope.malls = {};
     Malls.all().then(function (unorderedMalls, error) {
         GeoAlert.getDistance(unorderedMalls).then(function (data, err) {
             if (data) {

@@ -13,6 +13,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(__dirname + '/www'));
 
+app.get('/help',function(req,res){
+    res.sendFile(__dirname + "/www/help.html");
+});
+app.get('/partners',function(req,res){
+    res.sendFile(__dirname + "/www/partners.html");
+});
+app.get('/heroku',function(req,res){
+    res.sendFile(__dirname + "/www/heroku.html");
+});
+
 app.post('/login', function (req, res) {
 
     if (req.body.password && req.body.email) {
