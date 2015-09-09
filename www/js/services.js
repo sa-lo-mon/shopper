@@ -75,7 +75,7 @@ appServices.factory('Sales', function ($http, $q, AuthService) {
         } else {
             return $q(function (resolve, reject) {
                 var userCats = AuthService.getUserModel().categories;
-                $http.get('/sales' + '/' + userCats).then(function (data, err) {
+                $http.get('/sales/all/' + userCats).then(function (data, err) {
                     if (err) {
                         reject(err);
                     } else {
@@ -155,7 +155,7 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
                 if (data) {
                     resolve(data);
                 } else {
-                    reject("rejected");
+                    reject(err);
                 }
             });
         });
@@ -166,12 +166,9 @@ appServices.factory('MySales', function ($http, $q, Sales, AuthService) {
         return Sales.getSalesByIds(userDetails.sales);
     };
 
-    var all = function () {
-        return getMySales();
-    };
 
     return {
-        all: all,
+        all: getMySales,
         remove: remove,
         add: add
     };
@@ -383,20 +380,34 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         var authToken = undefined;
         $http.defaults.headers.common['X-Auth-Token'] = undefined;
         window.localStorage.removeItem(LOCAL_TOKEN_KEY);
+        window.localStorage.removeItem(LOCAL_CATEGORIES_KEY);
         window.localStorage.removeItem(LOCAL_SALES_KEY);
     }
+
 
     function loginRedirect() {
         var path = 'login';
         var userCategories = window.localStorage.getItem(LOCAL_CATEGORIES_KEY);
         if (userCategories && userCategories.length > 0) {
 
-            //redirect to "main" page!
+            //redirect to "sales" page!
             path = 'tab.sales';
         } else {
 
             //redirect to "categories" page!
             path = 'categories';
+        }
+
+        $state.go(path);
+    }
+
+    function redirectFromLogin() {
+        var path = 'categories';
+        var userCategories = window.localStorage.getItem(LOCAL_CATEGORIES_KEY);
+        if (userCategories && userCategories.length > 0) {
+
+            //redirect to "sales" page!
+            path = 'tab.sales';
         }
 
         $state.go(path);
@@ -501,8 +512,8 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
 
     var removeSale = function (saleId) {
         var userSales = window.localStorage.getItem(LOCAL_SALES_KEY);
-        var indexOfSale = userSales.indexOf(saleId);
         var userSalesArray = userSales.split(',');
+        var indexOfSale = userSalesArray.indexOf(saleId.toString());
         userSalesArray.splice(indexOfSale, 1);
         window.localStorage.setItem(LOCAL_SALES_KEY, userSalesArray);
     };
@@ -518,6 +529,7 @@ appServices.service('AuthService', function ($rootScope, $state, $q, $http, USER
         getUserModel: getUserModel,
         addSale: addSale,
         removeSale: removeSale,
+        redirectFromLogin: redirectFromLogin,
 
         isAuthenticated: function () {
             return isAuthenticated;

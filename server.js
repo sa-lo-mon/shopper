@@ -136,8 +136,21 @@ app.get('/categories', function (req, res) {
     })
 });
 
-app.get('/sales/:catIds', function (req, res) {
-    mongoAccessLayer.getCollection('sales', {}, function (err, data) {
+app.get('/sales/all/:catIds', function (req, res) {
+
+    if (!req.params.catIds)
+        res.json({success: false, data: null, message: 'Invalid Request'});
+
+    var catIdsArray = req.params.catIds.split(',');
+    catIdsArray = catIdsArray.map(function (id) {
+        return parseInt(id);
+    });
+
+    var criteria = {
+        categoryId: {$in: catIdsArray}
+    };
+
+    mongoAccessLayer.getCollection('sales', criteria, function (err, data) {
         if (err) {
             res.json({success: false, data: null, message: err.message});
         } else {
@@ -147,25 +160,26 @@ app.get('/sales/:catIds', function (req, res) {
 });
 
 app.get('/sales/my/:ids', function (req, res) {
-    if (req.params.ids) {
-        var idsArray = req.params.ids.split(',');
-        idsArray = idsArray.map(function (id) {
-            return parseInt(id);
-        });
 
-        var criteria = {
-            id: {$in: idsArray}
-        };
-        mongoAccessLayer.getCollection('sales', criteria, function (err, data) {
-            if (err) {
-                res.json({success: false, data: null, message: err.message});
-            } else {
-                res.json({success: true, data: data, message: null});
-            }
-        })
-    } else {
-        res.json(null);
-    }
+    if (!req.params.ids)
+        res.json({success: false, data: null, message: 'Invalid Request'});
+
+    var idsArray = req.params.ids.split(',');
+    idsArray = idsArray.map(function (id) {
+        return parseInt(id);
+    });
+
+    var criteria = {
+        id: {$in: idsArray}
+    };
+
+    mongoAccessLayer.getCollection('sales', criteria, function (err, data) {
+        if (err) {
+            res.json({success: false, data: null, message: err.message});
+        } else {
+            res.json({success: true, data: data, message: null});
+        }
+    });
 });
 
 app.get('/mallSales/:mallId/:catsIds', function (req, res) {
@@ -218,12 +232,16 @@ app.post('/addToMySales', function (req, res) {
 
 app.post('/removeFromMySales', function (req, res) {
 
+    if (!req.body.email || !req.body.sales) {
+        res.json({success: false, data: null, message: 'Invalid request'});
+    }
+
     var criteria = {
         condition: {email: req.body.email},
         setValues: {Sales: req.body.sales}
     };
 
-    mongoAccessLayer.updateDocument("users", criteria, function (err, data) {
+    mongoAccessLayer.updateDocument('users', criteria, function (err, data) {
         if (err) {
             res.json({success: false, data: null, message: err.message});
 
@@ -235,6 +253,7 @@ app.post('/removeFromMySales', function (req, res) {
 
 app.get('/mySalesList/:user', function (req, res) {
     var query = req.params.user;
+    console.log('query: ', query);
 
     mongoAccessLayer.getMySales("users", query, function (err, data) {
         if (err) {
