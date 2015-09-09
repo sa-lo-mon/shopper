@@ -1,14 +1,18 @@
-<div> Please select categories:</div>
-<div id="categories" ng-controller="CategoriesCtrl">
-    <form ng-submit="sub()">
-        <div ng-repeat="category in categories">
-            <label>
-                <input type="checkbox"
-                       checklist-model="getCategories()"
-                       checklist-value="category.Id"
-                       ng-change="check(category.Id, checked)"> {{category.Name}}
-            </label>
-        </div>
-        <input type="submit" value="Submit"/>
-    </form>
-</div>
+<ion-view view-title="Categories">
+    <ion-content class="padding">
+        <form ng-submit="sub()">
+            <div class="list">
+                <ion-toggle
+                        ng-repeat="item in categories"
+                        ng-checked="item.checked"
+                        ng-model="item.checked"
+                        class="item item-text-wrap" ng-change="check(item.Id, item.checked)">
+                    {{item.Name}}
+                </ion-toggle>
+                <label class="item item-input">
+                    <button class="button button-block button-positive" type="submit">Submit</button>
+                </label>
+            </div>
+        </form>
+    </ion-content>
+</ion-view>
